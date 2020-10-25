@@ -1,0 +1,16 @@
+{
+  "name": "studyrooms",
+  "version": "1.0.0",
+  "description": "Back-End for online peer learning study rooms",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Saksham Mrig",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  }
+}
