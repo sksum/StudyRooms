@@ -16,6 +16,9 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
-    "sirv-cli": "^1.0.0"
+    "sapper": "^0.28.10",
+    "sirv-cli": "^1.0.0",
+    "socket.io-client": "^2.3.1",
+    "svelte-routing": "^1.4.2"
   }
 }
