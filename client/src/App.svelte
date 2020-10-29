@@ -7,7 +7,8 @@
 	let socket;
 	import io from 'socket.io-client';
 	export let url = "/";
- 
+	let textValue ;
+	let availabilityValue ;
 	onMount(() => {
 		socket = io('http://localhost:8000');
 	})
@@ -17,8 +18,8 @@
 		socket.emit("init",{
 			id:str,
 			students:[],
-			desc:"new room v1",
-			available: false
+			desc: textValue.value,
+			available: availabilityValue.value === "Public" ? true : false 
 		})
 		//window.open("http://localhost:5000/room")
 	}
@@ -32,6 +33,13 @@
 		</nav>
 		<Route path="/">
 			<button on:click={createRoom}>+</button>
+			<input bind:this={textValue} type="text" name="DESC" />
+			<br>
+			<label for="avail"> Room Type :</label>
+			<select bind:this={availabilityValue} id ="avail">
+				<option value="Public">Public</option>
+				<option value="Private">Private</option>
+			</select>
 		</Route>
 		<Route path="/room" > Helo world </Route>
 		<Route path="/rooms/:id" let:params>

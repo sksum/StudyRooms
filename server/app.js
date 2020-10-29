@@ -1,14 +1,14 @@
 const express = require("express");
 const http = require("http");
+const path = require("path")
 const app = express();
 const server = http.createServer(app);
 const socketIo = require("socket.io");
 const io =  socketIo(server);
 
-const invils = {};
 const db = {
     rooms: {}
-};
+}; 
 
 
 
@@ -17,13 +17,21 @@ io.sockets.on("connection", socket => {
     
     socket.on("init",(room) => {
         let id = room.id
-        console.log(`making new room :${id} `)
+        console.log(`making new room :${id} `)  
         db.rooms[id] = JSON.parse(JSON.stringify(room));
-        console.log(`new room: ${JSON.stringify(room)}`);
     })
 
     socket.on("enter",(ROOM_ID) => {
-        console.log(` user: ${socket.id} enters room: ${ROOM_ID}`) 
+        console.log(` user: ${socket.id} enters room: ${ROOM_ID}`)
+        if (db.rooms[ROOM_ID]){
+            if (!db.rooms[ROOM_ID].students.includes(socket.id)){
+                socket.emit("roomFound",db.rooms[ROOM_ID]);
+                db.rooms[ROOM_ID].students.push(socket.id);
+            }
+            
+        }
+        else console.log(`ROOM_ID ${ROOM_ID} not found`);
+        console.log(JSON.stringify(db.rooms[ROOM_ID]));
     })
 
     socket.on("offer", payload => {
