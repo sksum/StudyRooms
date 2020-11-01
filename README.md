@@ -5,6 +5,9 @@ Online Peer Learning
 2) find rooms :
 
 cd server && npm i
+
 cd client && npm i
+
 server -> npm run dev
+
 client -> npm start
