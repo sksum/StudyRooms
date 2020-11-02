@@ -41,25 +41,28 @@ const Room = (props) => {
     const socketRef = useRef();
     const userVideo = useRef();
     const peerRef = useRef([]);
+    const otherPerson = useRef();
     console.log(props)
-    const roomID = props.dat.match.params.id;
-
-    const desc = props.desc;
-    const avail = props.avail;
+    const roomID = props.match.params.id;
 
     useEffect(() => {
         socketRef.current = io.connect("localhost:8000/");
 
-        socketRef.current.emit("init", roomID, desc[roomID] ,avail[roomID]);
 
         navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false }).then(stream => {
             userVideo.current.srcObject = stream;
             socketRef.current.emit("joinRoom", roomID);
             socketRef.current.on("listOfPeers", users => {
                 users.forEach(userID => {
+                    socketRef.current.emit("calling peer",userID)
                     callPeer(userID);
+                    console.log(`${socketRef.current.id} calling  ${userID}`)
                 })
             })
+        socketRef.current.on("called",(id) => {
+            callPeer(id);
+            console.log(`${socketRef.current.id} calling  ${id}`)
+        })
 
         socketRef.current.on("offer_received", handleRecieveCall);
 
@@ -72,7 +75,7 @@ const Room = (props) => {
     function callPeer(invilId) {
         console.log(`calling peer:${invilId}`)
         peerRef.current = createPeer(invilId);
-        userVideo.current.getTracks().forEach(track => peerRef.current.addTrack(track, userVideo.current));
+        userVideo.current.srcObject.getTracks().forEach(track => peerRef.current.addTrack(track, userVideo.current.srcObject));
     }
 
     function createPeer(invilId) {
@@ -89,7 +92,7 @@ const Room = (props) => {
             ]
         });
 
-        peer.onicecandidate = handleICECandidateEvent;
+        peer.onicecandidate = (e) => handleICECandidateEvent(e,invilId);
         peer.ontrack = handleTrackEvent;
         peer.onnegotiationneeded = () => handleNegotiationNeededEvent(invilId);
 
@@ -113,7 +116,7 @@ const Room = (props) => {
         peerRef.current = createPeer();
         const desc = new RTCSessionDescription(incoming.sdp);
         peerRef.current.setRemoteDescription(desc).then(() => {
-            userVideo.current.getTracks().forEach(track => peerRef.current.addTrack(track, userVideo.current));
+            userVideo.current.srcObject.getTracks().forEach(track => peerRef.current.addTrack(track, userVideo.current.srcObject));
         }).then(() => {
             return peerRef.current.createAnswer();
         }).then(answer => {
@@ -135,10 +138,10 @@ const Room = (props) => {
         peerRef.current.setRemoteDescription(desc).catch(e => console.log(e));
     }
 
-    function handleICECandidateEvent(e) {
+    function handleICECandidateEvent(e,invil) {
         if (e.candidate) {
             const payload = {
-                //target: invil.current,
+                target: invil,
                 candidate: e.candidate,
             }
             socketRef.current.emit("ice-candidate", payload);
@@ -168,6 +171,7 @@ const Room = (props) => {
                     <Video key={index} peer={peer} />
                 );
             })}
+            <StyledVideo playsInline autoPlay ref={otherPerson} />
         </Container>
     );
 };

@@ -2,6 +2,8 @@ import React,{Component, useState} from 'react';
 import {Container, AppBar, Toolbar, FormGroup, Typography, Button, FormControl, InputLabel ,Input, Fab, FormControlLabel,Switch as S,Grid} from  '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import RoomStyled from './RoomStyled.jsx';
+import io from "socket.io-client";
+import { generateRoomWithoutSeparator } from '../../randomRoom.js'
 
 import {
     BrowserRouter as Router,
@@ -15,7 +17,7 @@ const Form = () => {
     const history = useHistory();
     const [desc, setDesc] = useState('');
     const [avail, setAvail] = useState(true);
-
+ 
     return (
         < div style={{paddingTop: '2em'}} >
         <FormGroup style={{  border: '2px solid blue' }} >
@@ -33,9 +35,11 @@ const Form = () => {
                     <br />
                     <Fab color="primary" aria-label="add">
                         <AddIcon onClick = {() => {
-                            history.push('rooms/123')
+                            let id = generateRoomWithoutSeparator(0);
+                            history.push(`rooms/${id}`);
                             // start/create room 
                             // io.connect('localhost:8000').emit("init", 123, desc ,avail);
+                            io.connect('localhost:8000').emit("init",id , desc ,avail);
 
 
 

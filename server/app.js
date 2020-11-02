@@ -2,8 +2,8 @@ const express = require("express");
 const http = require("http");
 const app = express();
 const server = http.createServer(app);
-const socket = require("socket.io");
-const io = socket(server);
+const socketIo = require("socket.io");
+const io = socketIo(server);
 
 const db = {
     rooms : {},
@@ -12,34 +12,41 @@ const db = {
 
 io.on('connection', socket => {
     console.log(`connected ${socket.id}`)
-    socket.on("init", (roomID,desc,avail) => {
+
+    socket.on('init', (roomID, desc, avail) => {
         let room = { 
             id: roomID,
             desc: desc,
             avail: avail,
-            students: [socket.id]
+            students: []
         }
         db.rooms[roomID] = room;
-        db.socket2Room[socket.id] = roomID;
-        console.log("new room:::",JSON.stringify(room))
+        console.log("new room:::",socket.id,JSON.stringify(room))
+    }) 
+
+    socket.on("calling peer" , soc => {
+        io.to(soc).emit("called",socket.id);
     })
 
     socket.on("joinRoom", roomID => {
         const room = db.rooms[roomID];
         console.log(JSON.stringify(room))
-        console.log(`room ${roomID} : ${room.desc},${room.students.length} entered by ${socket.id}`  )
-        if (room && room.students.length) {
+        
+        db.socket2Room[socket.id] = roomID;
+        if (room) {
+            
             const length = room.students.length;
             if (length >= 4) {
                 socket.emit("room full");
                 return;
             }
-            console.log('hello')
             db.rooms[roomID].students.push(socket.id);
-            db.socket2Room[socket.id] = roomID;
             const usersInThisRoom = room.students.filter(id => id !== socket.id);
-            console.log("listOfPeers ", usersInThisRoom)
             socket.emit("listOfPeers", usersInThisRoom);
+            console.log(`room ${roomID} : ${room.desc} entered by ${socket.id}`  )
+        } 
+        else {
+            console.log("room not found")
         }
 
     });
