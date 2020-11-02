@@ -1,7 +1,8 @@
 import React,{Component, useState} from 'react';
 import {Container, AppBar, Toolbar, FormGroup, Typography, Button, FormControl, InputLabel ,Input, Fab, FormControlLabel,Switch as S,Grid} from  '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import {Room} from './Room.jsx';
+import RoomStyled from './RoomStyled.jsx';
+
 import {
     BrowserRouter as Router,
     Switch,
@@ -32,9 +33,9 @@ const Form = () => {
                     <br />
                     <Fab color="primary" aria-label="add">
                         <AddIcon onClick = {() => {
-                            history.push(desc+(avail).toString());
+                            history.push('rooms/123')
                             // start/create room 
-
+                            // io.connect('localhost:8000').emit("init", 123, desc ,avail);
 
 
 
@@ -83,7 +84,7 @@ export class MainPage extends Component {
                         <Route path="/" exact>
                             MainPage
                         </Route>
-                        <Route path="/rooms/:id" component = {Room}/> 
+                        <Route path="/rooms/:id" component = {(RoomStyled)}/> 
                     </Switch> 
                 </Container>
             </Router>
